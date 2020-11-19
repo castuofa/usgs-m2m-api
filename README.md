@@ -60,7 +60,7 @@ _Collect only available scenes to queue for download_
 downloadable_scenes = list(
   filter(
     lambda scene: scene.options.get('download', False),
-  scenes
+    scenes
   )
 )
 ```
