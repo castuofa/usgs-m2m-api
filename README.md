@@ -2,6 +2,9 @@
 
 An object oriented wrapper around the USGS Earth Explorer JSON API (v1.5.x). The primary objective of this API is to provide a convenient method of requesting and downloading scenes from EE datasets, including robust metadata where available.
 
+## API Documentation
+https://cast.git-pages.uark.edu/transmap-hub/usgs/usgs/
+
 ## Prerequisites
 - Must have an Earth Explorer account: https://earthexplorer.usgs.gov
 - The EE account must have M2M accesss, requested here: https://ers.cr.usgs.gov/profile/access (you will need to wait for approval)
