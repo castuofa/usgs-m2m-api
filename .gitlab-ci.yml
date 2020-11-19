@@ -9,7 +9,7 @@ build_package:
     script:
     - pip install pipenv
     - pipenv install
-    - pipenv install pdoc
+    - pipenv install pdoc3
     # Build not necessary for submodules
     # - pipenv run python setup.py bdist_wheel
     - pipenv run pdoc --html --output-dir public usgs
