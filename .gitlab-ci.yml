@@ -1,0 +1,30 @@
+image: "python:3.8"
+
+stages:
+    - build
+    - deploy
+
+build_package:
+    stage: build
+    script:
+    - pip install pipenv
+    - pipenv install
+    - pipenv install pdoc
+    # Build not necessary for submodules
+    # - pipenv run python setup.py bdist_wheel
+    - pipenv run pdoc --html --output-dir public usgs
+    artifacts:
+        untracked: true
+        paths:
+        - public/usgs
+
+pages:
+    image: alpine:latest
+    stage: deploy
+    script:
+        - echo 'Nothing to do...'
+    dependencies:
+        - build_package
+    artifacts:
+        paths:
+        - public/usgs
