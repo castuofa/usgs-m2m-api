@@ -33,29 +33,29 @@ $ pipenv run python ./example.py
 To query a specific item, like a `dataset` or a `scene`, you need to construct a `Query` object from that namespace (`dataset.Query`, `scene.Query`) and pass that to the `Api` with either a `fetch` or `fetchone`. This will return a `Model` or `List[Model]` of that type (`dataset.Model`, `scene.Model`)
 
 
-*Initialize the API*
+_Initialize the API_
 ```python
 from usgs_api import Api
 api = Api.login()
 ### If you want to directly type your user:password you can use
 api = Api(username="user_name", password="password")
 ```
-*Create a query object*
+_Create a query object_
 ```python
 from usgs_api import dataset
 query = dataset.Query(
   datasetName="corona2"
 )
 ```
-*Fetch the dataset*
+_Fetch the dataset_
 ```python
 dataset = api.fetchone(query)
 ```
-*Collect scenes from dataset*
+_Collect scenes from dataset_
 ```python
 scenes = dataset.scenes()
 ```
-*Collect only available scenes to queue for download*
+_Collect only available scenes to queue for download_
 ```python
 downloadable_scenes = list(
   filter(
