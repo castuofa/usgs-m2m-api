@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from usgs_api import (
+from usgs import (
     dataset,
     Api
 )
