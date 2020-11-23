@@ -1,6 +1,6 @@
-from dataclasses import dataclass
-from typing import ClassVar, List
-from .abstracts import (
+from dataclasses import dataclass, field
+from typing import ClassVar
+from .model import (
     Model as BaseModel
 )
 
@@ -15,4 +15,4 @@ class DatasetBulkProduct:
 class DatasetBulkProducts(BaseModel):
     _end_point: ClassVar[str] = "dataset-bulk-products"
 
-    datasetName: str
+    datasetName: str = field(default=None)

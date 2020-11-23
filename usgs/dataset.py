@@ -1,9 +1,7 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, List
-from .abstracts import (
-    Model as BaseModel,
-    Query as BaseQuery
-)
+from .model import Model as BaseModel
+from .query import Query as BaseQuery
 from .filters import (
     SpatialFilter,
     TemporalFilter

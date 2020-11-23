@@ -2,7 +2,7 @@ import json
 import pytest
 from unittest.mock import Mock
 
-from .. import *
+from ..api import Api
 from .stubs import responses
 
 

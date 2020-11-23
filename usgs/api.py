@@ -1,66 +1,16 @@
 import json
 import getpass
-
 import requests
 
 from logging import getLogger
 from os import getenv
 
-from dataclasses import dataclass, field
-from typing import ClassVar, Callable, List, Any
-
-from . import (
-    utilities
-)
+from dataclasses import dataclass
+from typing import List
 
 
-@dataclass
-class Query:
-    """Base Query object that handles utility type methods
-
-    Raises
-    ------
-    NotImplementedError
-        Thrown when method doesn't exist or wasn't overridden
-        by inherited object
-    """
-
-    _end_point: ClassVar[str] = None
-    _model: ClassVar[str] = None
-
-    totalResults: int = field(init=False, repr=False, default=0)
-
-    def to_dict(self):
-        return utilities.asdict(self, skip_empty=True)
-
-    def endpoint(self, base_url: str):
-        if not base_url and not self._end_point:
-            raise NotImplementedError("Endpoint does not exist")
-
-        if base_url[-1] == '/':
-            base_url = base_url[:-1]
-
-        return f"{base_url}/{self._end_point}"
-
-
-@dataclass
-class Model:
-    """Base Model abstract. Should be used as base class when
-    defining models
-    """
-
-    def to_dict(self):
-        """Utility method to convert the dataclass Model to dict
-
-        Returns
-        -------
-        dict
-            dictionary version of the dataclass
-        """
-        return utilities.asdict(self)
-
-    def has_many(self, query: Query):
-        return Api.fetch(query)
+from .query import Query
+from .model import Model, ResultSet
 
 
 @dataclass
@@ -298,7 +248,7 @@ class Api:
         """
         items = []
         for item_data in results.get('results', []):
-            items.append(query._model(**item_data))
+            items.append(query._model(**item_data, _api=cls))
         results['results'] = items
         result_set = ResultSet(**results)
         result_set._query_builder = query
@@ -323,25 +273,4 @@ class Api:
         list
             List of instantiated Models for the results
         """
-        return [query._model(**item) for item in results]
-
-
-@dataclass
-class ResultSet:
-    results: List[Model]
-    recordsReturned: int
-    totalHits: int
-    numExcluded: int
-    startingNumber: int
-    nextRecord: int
-
-    _query_builder: Any = field(init=False, repr=False, default=None)
-
-    def next(self):
-        if self.totalHits <= self._query_builder.startingNumber:
-            return []
-        self._query_builder.startingNumber += self._query_builder.maxResults
-        return self._query_builder.get()
-
-    def __getitem__(self, key):
-        return self.results[key]
+        return [query._model(**item, _api=cls) for item in results]

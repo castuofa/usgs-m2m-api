@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 from typing import ClassVar, List
-from .abstracts import (
-    Query as BaseQuery,
+from .model import (
     Model as BaseModel
+)
+from .query import (
+    Query as BaseQuery,
 )
 from .filters import (
     SceneFilter

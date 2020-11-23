@@ -1,6 +1,4 @@
-from unittest import mock
 import pytest
-from .stubs import responses
 
 
 def test_login_with_instance_login_and_pass(mock_request, mock_api):
