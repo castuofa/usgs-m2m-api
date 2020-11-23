@@ -1,0 +1,179 @@
+{
+    "requestId": 112031999,
+    "version": "stable",
+    "data": {
+        "results": [{
+            "browse": [{
+                "id": "5e839febde63382",
+                "browseRotationEnabled": null,
+                "browseName": "Standard Browse",
+                "browsePath": "https://ims.cr.usgs.gov/browse/DIT/1117-2/086D/A/DS1117-2086DA001.jpg",
+                "overlayPath": "https://ims.cr.usgs.gov/browse/DIT/1117-2/086D/A/DS1117-2086DA001.jpg",
+                "overlayType": "file",
+                "thumbnailPath": "https://ims.cr.usgs.gov/thumbnail/DIT/1117-2/086D/A/DS1117-2086DA001.jpg"
+            }],
+            "cloudCover": null,
+            "entityId": "DS1117-2086DA001",
+            "displayId": "DS1117-2086DA001",
+            "orderingId": null,
+            "metadata": [],
+            "options": {
+                "bulk": false,
+                "download": false,
+                "order": true,
+                "secondary": false
+            },
+            "selected": {
+                "bulk": false,
+                "compare": false,
+                "order": false
+            },
+            "spatialBounds": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [125.906, 53.798],
+                        [125.906, 54.357],
+                        [129.122, 54.357],
+                        [129.122, 53.798],
+                        [125.906, 53.798]
+                    ]
+                ]
+            },
+            "spatialCoverage": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [129.021, 53.798],
+                        [129.122, 53.934],
+                        [125.915, 54.357],
+                        [125.906, 54.21],
+                        [129.021, 53.798]
+                    ]
+                ]
+            },
+            "temporalCoverage": {
+                "endDate": "1972-05-31 00:00:00-05",
+                "startDate": "1972-05-31 00:00:00-05"
+            },
+            "publishDate": "2000-04-18 10:09:54-05"
+        }, {
+            "browse": [{
+                "id": "5e839febde63382",
+                "browseRotationEnabled": null,
+                "browseName": "Standard Browse",
+                "browsePath": "https://ims.cr.usgs.gov/browse/DIT/1117-2/086D/A/DS1117-2086DA002.jpg",
+                "overlayPath": "https://ims.cr.usgs.gov/browse/DIT/1117-2/086D/A/DS1117-2086DA002.jpg",
+                "overlayType": "file",
+                "thumbnailPath": "https://ims.cr.usgs.gov/thumbnail/DIT/1117-2/086D/A/DS1117-2086DA002.jpg"
+            }],
+            "cloudCover": null,
+            "entityId": "DS1117-2086DA002",
+            "displayId": "DS1117-2086DA002",
+            "orderingId": null,
+            "metadata": [],
+            "options": {
+                "bulk": false,
+                "download": false,
+                "order": true,
+                "secondary": false
+            },
+            "selected": {
+                "bulk": false,
+                "compare": false,
+                "order": false
+            },
+            "spatialBounds": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [125.862, 53.674],
+                        [125.862, 54.232],
+                        [129.068, 54.232],
+                        [129.068, 53.674],
+                        [125.862, 53.674]
+                    ]
+                ]
+            },
+            "spatialCoverage": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [128.97, 53.674],
+                        [129.068, 53.81],
+                        [125.871, 54.232],
+                        [125.862, 54.084],
+                        [128.97, 53.674]
+                    ]
+                ]
+            },
+            "temporalCoverage": {
+                "endDate": "1972-05-31 00:00:00-05",
+                "startDate": "1972-05-31 00:00:00-05"
+            },
+            "publishDate": "2000-04-18 10:09:54-05"
+        }, {
+            "browse": [{
+                "id": "5e839febde63382",
+                "browseRotationEnabled": null,
+                "browseName": "Standard Browse",
+                "browsePath": "https://ims.cr.usgs.gov/browse/DIT/1117-2/086D/A/DS1117-2086DA003.jpg",
+                "overlayPath": "https://ims.cr.usgs.gov/browse/DIT/1117-2/086D/A/DS1117-2086DA003.jpg",
+                "overlayType": "file",
+                "thumbnailPath": "https://ims.cr.usgs.gov/thumbnail/DIT/1117-2/086D/A/DS1117-2086DA003.jpg"
+            }],
+            "cloudCover": null,
+            "entityId": "DS1117-2086DA003",
+            "displayId": "DS1117-2086DA003",
+            "orderingId": null,
+            "metadata": [],
+            "options": {
+                "bulk": false,
+                "download": false,
+                "order": true,
+                "secondary": false
+            },
+            "selected": {
+                "bulk": false,
+                "compare": false,
+                "order": false
+            },
+            "spatialBounds": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [125.85, 53.515],
+                        [125.85, 54.136],
+                        [129.028, 54.136],
+                        [129.028, 53.515],
+                        [125.85, 53.515]
+                    ]
+                ]
+            },
+            "spatialCoverage": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [128.92, 53.515],
+                        [129.028, 53.648],
+                        [125.867, 54.136],
+                        [125.85, 53.988],
+                        [128.92, 53.515]
+                    ]
+                ]
+            },
+            "temporalCoverage": {
+                "endDate": "1972-05-31 00:00:00-05",
+                "startDate": "1972-05-31 00:00:00-05"
+            },
+            "publishDate": "2000-04-18 10:09:54-05"
+        }],
+        "recordsReturned": 100,
+        "totalHits": 836454,
+        "numExcluded": 0,
+        "startingNumber": 1,
+        "nextRecord": 101
+    },
+    "errorCode": null,
+    "errorMessage": null
+}

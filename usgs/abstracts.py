@@ -140,6 +140,9 @@ class Api:
             'password': password
         }
 
+        if not username or not password:
+            raise ValueError("Username or Password must be defined")
+
         cls.API_KEY = cls.request(login_url, login_parameters)
 
         return cls

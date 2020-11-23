@@ -1,0 +1,19 @@
+{
+    "requestId": 112041941,
+    "version": "stable",
+    "data": [{
+        "id": "5e839feb28131aac",
+        "displayId": "DS1117-2086DA017",
+        "entityId": "DS1117-2086DA017",
+        "datasetId": "5e839febdccb64b3",
+        "available": true,
+        "filesize": 782283562,
+        "productName": "Standard Format",
+        "productCode": "D183",
+        "bulkAvailable": true,
+        "downloadSystem": "dds",
+        "secondaryDownloads": []
+    }],
+    "errorCode": null,
+    "errorMessage": null
+}

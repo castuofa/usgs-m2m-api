@@ -1,0 +1,33 @@
+{
+    "requestId": 112029890,
+    "version": "stable",
+    "data": {
+        "abstractText": "On February 24, 1995, President Clinton signed an Executive Order, directing the declassification of intelligence imagery acquired by the first generation of United States photo-reconnaissance satellites, including the systems code-named CORONA, ARGON, and LANYARD. More than 860,000 images of Earth's surface, collected between 1960 and 1972, were declassified with the issuance of this Executive Order. The National Archives and Records Administration (NARA) was given the responsibility for the original film and provide access to a duplicate copy for public viewing of the film. The USGS was also provided a dupe copy to support science products. Both NARA and the USGS provide access and product support for Declass-1 collection.\r\n\r\nOnline requests for these data can be placed via the EarthExplorer interactive query system. EarthExplorer contains metadata and online samples of Earth science data. With EarthExplorer, you may review metadata, determine product availability, and place online requests for products.\r\n\r\nMore than 40 percent of the imagery contains significant cloud cover. The use of browse imagery gives the user the opportunity to review a reduced spatial resolution image to determine whether or not the area of interest is covered and is or is not obscured by clouds.\r\n",
+        "acquisitionStart": "1960-07-31",
+        "acquisitionEnd": "1972-05-31",
+        "catalogs": ["EE", "CWIC"],
+        "collectionName": "Declass 1 (1996)",
+        "collectionLongName": "Declass 1 (1996) = Corona, Lanyard, & Argon Missions - KH1 thru KH6: 1960 - 1972.",
+        "datasetId": "5e839febdccb64b3",
+        "datasetAlias": "corona2",
+        "datasetCategoryName": "Declassified Data",
+        "dataOwner": "DMID",
+        "dateUpdated": "2020-03-31 14:54:19.655031-05",
+        "doiNumber": "https://doi.org/10.5066/F78P5XZM",
+        "ingestFrequency": null,
+        "keywords": "None,LANYARD,USGS,Satellite,EDC,EROS,Photographs,Cartographic Camera ,Photo-Reconnaissance,Earth Science > Radiance or Imagrey > Visible Wavelengths > Visible Imagery,Earth Science > Radiance or Imagery > Infrared Wavelengths > Infrared Imagery,CORONA,Imagery,Photography,ARGON,Environmental,Panoramic Camera,Declassified",
+        "legacyId": 1051,
+        "sceneCount": 0,
+        "spatialBounds": {
+            "north": 87.1569999999996,
+            "east": 180.000000000014,
+            "south": -88.6989572593193,
+            "west": -180.000000000014
+        },
+        "temporalCoverage": null,
+        "supportCloudCover": false,
+        "supportDeletionSearch": false
+    },
+    "errorCode": null,
+    "errorMessage": null
+}

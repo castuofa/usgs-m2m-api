@@ -1,0 +1,40 @@
+{
+    "requestId": 112044924,
+    "version": "stable",
+    "data": {
+        "available": [{
+            "downloadId": 10545324,
+            "collectionName": "Declass 1 (1996)",
+            "datasetId": "5e839febdccb64b3",
+            "displayId": "DS1117-2086DA017",
+            "entityId": "DS1117-2086DA017",
+            "eulaCode": null,
+            "filesize": 782283562,
+            "label": "download-sample",
+            "productCode": "D183",
+            "productName": "Standard Format",
+            "statusCode": "A",
+            "statusText": "Available",
+            "url": "https://dds.cr.usgs.gov/download/eyJpZCI6MTA1NDUzMjQsImNvbnRhY3RJZCI6MjExMjkyMX0="
+        }],
+        "queueSize": 0,
+        "requested": [{
+            "downloadId": 10545324,
+            "collectionName": "Declass 1 (1996)",
+            "datasetId": "5e839febdccb64b3",
+            "displayId": "DS1117-2086DA017",
+            "entityId": "DS1117-2086DA017",
+            "eulaCode": null,
+            "filesize": 782283562,
+            "label": "download-sample",
+            "productCode": "D183",
+            "productName": "Standard Format",
+            "statusCode": "A",
+            "statusText": "Available",
+            "url": "https://dds.cr.usgs.gov/download/eyJpZCI6MTA1NDUzMjQsImNvbnRhY3RJZCI6MjExMjkyMX0="
+        }],
+        "eulas": []
+    },
+    "errorCode": null,
+    "errorMessage": null
+}

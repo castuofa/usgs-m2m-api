@@ -1,0 +1,20 @@
+{
+    "requestId": 112044215,
+    "version": "stable",
+    "data": {
+        "availableDownloads": [],
+        "duplicateProducts": [],
+        "preparingDownloads": [{
+            "downloadId": 10545324,
+            "eulaCode": null,
+            "url": "https://dds.cr.usgs.gov/download-staging/eyJpZCI6MTA1NDUzMjQsImNvbnRhY3RJZCI6MjExMjkyMX0="
+        }],
+        "failed": [],
+        "newRecords": {
+            "10545324": "download-sample"
+        },
+        "numInvalidScenes": 0
+    },
+    "errorCode": null,
+    "errorMessage": null
+}
