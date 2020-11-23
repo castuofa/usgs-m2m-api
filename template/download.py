@@ -71,7 +71,7 @@ if __name__ == '__main__':
     # username = args.username
     # password = args.password
     username = "cangel.cast"
-    password = "h90Fddx79sIT"
+    password = "**********"
 
     print("\nRunning Scripts...\n")
 
