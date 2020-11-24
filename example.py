@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     api = Api.login()
 
-    query = dataset.Query(
+    query = dataset.DatasetsQuery(
         datasetName="corona2"
     )
 
@@ -24,3 +24,7 @@ if __name__ == "__main__":
         filter(lambda scene: scene.options.get('download'), corona_scenes))
 
     print(downloadable_scenes[0])
+
+    # usgs_api = Api()
+    # print(usgs_api.datasets(datasetName="corona2").fetch())
+    # print(usgs_api.dataset(datasetName="corona2").fetchone().scenes)

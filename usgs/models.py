@@ -3,6 +3,11 @@ from typing import ClassVar
 from .model import (
     Model as BaseModel
 )
+from .dataset import DatasetModel
+
+__all__ = [
+    'DatasetModel'
+]
 
 
 @dataclass

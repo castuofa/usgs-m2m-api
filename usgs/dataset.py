@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import ClassVar, List
 from .model import Model as BaseModel
 from .query import Query as BaseQuery
@@ -10,7 +10,7 @@ from . import scene
 
 
 @dataclass
-class Model(BaseModel):
+class DatasetModel(BaseModel):
     datasetId: str = None
 
     datasetAlias: str = None
@@ -50,17 +50,17 @@ class Model(BaseModel):
 
     #     return self._bulk_products
 
-    def scenes(self, *args, **kwargs) -> List[scene.Model]:
+    def scenes(self, *args, **kwargs) -> List[scene.SceneModel]:
         kwargs['datasetName'] = self.datasetAlias
-        query = scene.Query(*args, **kwargs)
+        query = scene.SceneQuery(*args, **kwargs)
         return self.has_many(query)
 
 
 @dataclass
-class Query(BaseQuery):
+class DatasetsQuery(BaseQuery):
 
     _end_point: ClassVar[str] = "dataset-search"
-    _model: ClassVar[Model] = Model
+    _model: ClassVar[DatasetModel] = DatasetModel
 
     datasetName: str = None
     spatialFilter: SpatialFilter = None
@@ -71,3 +71,19 @@ class Query(BaseQuery):
     includeMessages: bool = None
     publicOnly: bool = None
     includeUnknownSpatial: bool = None
+
+
+@dataclass
+class DatasetQuery(BaseQuery):
+    _end_point: ClassVar[str] = "dataset"
+    _model: ClassVar[DatasetModel] = DatasetModel
+
+    datasetName: str = None
+    datasetId: str = None
+
+    @property
+    def valid(self):
+        return self.datasetName or self.datasetId
+
+    def fetch(self):
+        return self.fetchone()

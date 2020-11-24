@@ -12,7 +12,7 @@ from .filters import (
 
 
 @dataclass
-class Model(BaseModel):
+class SceneModel(BaseModel):
     browse: list = None
     cloudCover: int = None
     entityId: str = None
@@ -28,9 +28,9 @@ class Model(BaseModel):
 
 
 @dataclass
-class Query(BaseQuery):
+class SceneQuery(BaseQuery):
     _end_point: ClassVar[str] = "scene-search"
-    _model: ClassVar[Model] = Model
+    _model: ClassVar[SceneModel] = SceneModel
 
     datasetName: str
     sceneFilter: SceneFilter = None

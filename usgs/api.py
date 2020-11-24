@@ -11,9 +11,9 @@ from typing import List
 
 from .query import Query
 from .model import Model, ResultSet
+from .queries import *
 
 
-@dataclass
 class Api:
 
     """Primary interface to the Earth Explorer M2M API. This handles
@@ -52,7 +52,23 @@ class Api:
         'EE_URL', None) or "https://m2m.cr.usgs.gov/api/api/json/stable"
 
     def __init__(self, username: str = None, password: str = None):
-        Api.login(username, password)
+        if not self.API_KEY:
+            Api.login(username, password)
+
+    @property
+    def datasets(self) -> DatasetsQuery:
+        DatasetsQuery._api = self
+        return DatasetsQuery
+
+    @property
+    def dataset(self) -> DatasetQuery:
+        DatasetQuery._api = self
+        return DatasetQuery
+
+    @property
+    def scenes(self) -> SceneQuery:
+        SceneQuery._api = self
+        return SceneQuery
 
     @classmethod
     def login(cls, username: str = None, password: str = None):
@@ -95,7 +111,7 @@ class Api:
 
         cls.API_KEY = cls.request(login_url, login_parameters)
 
-        return cls
+        return cls()
 
     @classmethod
     def fetch(cls, query: Query) -> List[Model]:
@@ -116,8 +132,12 @@ class Api:
             data=query.to_dict()
         )
 
-        if isinstance(result, dict):
+        if isinstance(result, dict) and result.get('results', None):
+            # We got a paginated result
             result = cls._build_result_set(result, query)
+        elif isinstance(result, dict):
+            # assume we got a single return
+            result = query._model(**result, _api=cls)
         else:
             result = cls._build_result(result, query)
         return result
@@ -139,7 +159,10 @@ class Api:
             A single instance of a model/dataclass that is matched
             with the Query instance
         """
-        return cls.fetch(query)[0]
+        data = cls.fetch(query)
+        if isinstance(data, list):
+            return data[0]
+        return data
 
     @classmethod
     def request(cls,
