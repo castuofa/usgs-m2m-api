@@ -26,7 +26,7 @@ if __name__ == "__main__":
     # print(downloadable_scenes[0])
 
     api = Api()
-    print(api.dataset(datasetName="corona2").scenes().available())
+    print(api.dataset(datasetName="corona2").scenes().download_options())
 
     # usgs_api = Api()
     # print(usgs_api.datasets(datasetName="corona2").fetch())

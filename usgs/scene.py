@@ -70,7 +70,7 @@ class SceneModel(BaseModel):
         return self.options.get('download', False) \
             and self.options.get('bulk', False)
 
-    def available(self) -> DownloadOptionModel:
+    def download_options(self) -> DownloadOptionModel:
         """Method to query download availability
 
         Returns
@@ -117,7 +117,7 @@ class SceneResultSet(BaseModel):
         self._query.startingNumber += self._query.maxResults
         return self._api.fetch(self._query)
 
-    def available(self) -> List[DownloadOptionModel]:
+    def download_options(self) -> List[DownloadOptionModel]:
         """Method to query download availability
 
         Returns
