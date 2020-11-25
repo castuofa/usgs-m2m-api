@@ -12,6 +12,18 @@ from .filters import (
 
 
 @dataclass
+class DownloadModel(BaseModel):
+    entityId: str = None
+    productId: str = None
+
+
+@dataclass
+class DownloadQuery(BaseQuery):
+    downloads: List[DownloadModel] = None
+    label: str = None
+
+
+@dataclass
 class DownloadOptionModel(BaseModel):
     id: str = None
     displayId: str = None
@@ -132,6 +144,26 @@ class SceneResultSet(BaseModel):
                 entityIds=entityIds
             )
         )
+
+    def queue(self):
+        download_options = self.download_options()
+        downloads = map(
+            lambda option:
+                DownloadModel(
+                    entityId=option.entityId,
+                    productId=option.productCode
+                ),
+            filter(
+                lambda option: option.available,
+                download_options
+            )
+        )
+        download_query = DownloadQuery(
+            downloads=list(downloads),
+            label=self._api.SESSION_LABEL
+        )
+        print(download_query.to_dict())
+        return self
 
     def __getitem__(self, key):
         return self.results[key]
