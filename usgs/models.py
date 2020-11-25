@@ -4,9 +4,11 @@ from .model import (
     Model as BaseModel
 )
 from .dataset import DatasetModel
+from .scene import SceneModel
 
 __all__ = [
-    'DatasetModel'
+    'DatasetModel',
+    'SceneModel'
 ]
 
 

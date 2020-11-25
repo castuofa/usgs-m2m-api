@@ -1,3 +1,4 @@
+import random
 import json
 import getpass
 import requests
@@ -10,8 +11,9 @@ from typing import List
 
 
 from .query import Query
-from .model import Model, ResultSet
+from .model import Model
 from .queries import *
+from .models import DatasetModel, SceneModel
 
 
 class Api:
@@ -36,6 +38,9 @@ class Api:
     BASE_URL : str
         The primary URL to the Earth Explorer API. Can be set in .env as EE_URL
 
+    SESSION_LABEL : str
+        The label used to queue/order downloadable scenes
+
     """
 
     log = getLogger('usgs_api')
@@ -51,24 +56,52 @@ class Api:
     BASE_URL = getenv(
         'EE_URL', None) or "https://m2m.cr.usgs.gov/api/api/json/stable"
 
+    SESSION_LABEL = f"m2m-label-{random.getrandbits(32)}"
+
     def __init__(self, username: str = None, password: str = None):
         if not self.API_KEY:
             Api.login(username, password)
 
-    @property
-    def datasets(self) -> DatasetsQuery:
+    def datasets(self, *args, **kwargs) -> List[DatasetModel]:
+        """An alias to the DatasetsQuery to return a collection
+        of DatasetModels
+
+        Returns
+        -------
+        List[DatasetModel]
+            Collection of datasets
+        """
         DatasetsQuery._api = self
-        return DatasetsQuery
 
-    @property
-    def dataset(self) -> DatasetQuery:
+        return DatasetsQuery(*args, **kwargs) \
+            .fetch()
+
+    def dataset(self, *args, **kwargs) -> DatasetModel:
+        """Alias to the single dataset Model
+        Requires either a datasetName or datasetId to be set
+
+        Returns
+        -------
+        DatasetModel
+            Single identified dataset if exists
+        """
         DatasetQuery._api = self
-        return DatasetQuery
 
-    @property
-    def scenes(self) -> SceneQuery:
+        return DatasetQuery(*args, **kwargs) \
+            .fetch()
+
+    def scenes(self, *args, **kwargs) -> List[SceneModel]:
+        """Alias to the SceneQuery to allow more convenient
+        collecting of scenes
+
+        Returns
+        -------
+        List[SceneModel]
+            Returns a ResultSet of the collected scenes
+        """
         SceneQuery._api = self
-        return SceneQuery
+        return SceneQuery(*args, **kwargs) \
+            .fetch()
 
     @classmethod
     def login(cls, username: str = None, password: str = None):
@@ -132,12 +165,9 @@ class Api:
             data=query.to_dict()
         )
 
-        if isinstance(result, dict) and result.get('results', None):
+        if isinstance(result, dict):
             # We got a paginated result
-            result = cls._build_result_set(result, query)
-        elif isinstance(result, dict):
-            # assume we got a single return
-            result = query._model(**result, _api=cls)
+            result = query._model(**result, _api=cls, _query=query)
         else:
             result = cls._build_result(result, query)
         return result
@@ -253,33 +283,6 @@ class Api:
         raise SystemExit(1)
 
     @classmethod
-    def _build_result_set(cls, results, query):
-        """Occasionally, the API will return a dict in results for paginated results
-        This builds the ResultSet to handle the paginated response
-
-        Parameters
-        ----------
-        results : dict
-            Dictionary of results with pagination information
-        query : Query
-            The Query object used to obtain the appropriate Model object
-
-        Returns
-        -------
-        ResultSet
-            The ResultSet with the list of Models applied and appropriate counts
-        """
-        items = []
-        for item_data in results.get('results', []):
-            items.append(query._model(**item_data, _api=cls))
-        results['results'] = items
-        result_set = ResultSet(**results)
-        result_set._query_builder = query
-        query.totalResults = result_set.totalHits
-
-        return result_set
-
-    @classmethod
     def _build_result(cls, results, query: Query):
         """When the result contains a single list of items, this is used to build
         the list of Models
@@ -296,4 +299,4 @@ class Api:
         list
             List of instantiated Models for the results
         """
-        return [query._model(**item, _api=cls) for item in results]
+        return [query._model(**item, _api=cls, _query=query) for item in results]

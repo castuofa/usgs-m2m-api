@@ -85,5 +85,14 @@ class DatasetQuery(BaseQuery):
     def valid(self):
         return self.datasetName or self.datasetId
 
-    def fetch(self):
-        return self.fetchone()
+    def fetch(self) -> DatasetModel:
+        """Always return the single instance in this query
+
+        Returns
+        -------
+        DatasetModel
+            The instantiated Model with the data returned from
+            the API
+        """
+        model = self.fetchone()
+        return model

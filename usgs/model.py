@@ -19,24 +19,3 @@ class Model(Relations):
             dictionary version of the dataclass
         """
         return utilities.asdict(self)
-
-
-@dataclass
-class ResultSet:
-    results: List[Model]
-    recordsReturned: int
-    totalHits: int
-    numExcluded: int
-    startingNumber: int
-    nextRecord: int
-
-    _query_builder: Any = field(init=False, repr=False, default=None)
-
-    def next(self):
-        if self.totalHits <= self._query_builder.startingNumber:
-            return []
-        self._query_builder.startingNumber += self._query_builder.maxResults
-        return self._query_builder.get()
-
-    def __getitem__(self, key):
-        return self.results[key]

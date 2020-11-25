@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 class Relations:
     _api: Any = field(repr=False, default=None)
 
+    _query: Any = field(repr=False, default=None)
+
     @property
     def api(self):
         return self._api

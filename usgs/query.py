@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, Any
-from . import utilities
+from . import utilities, model
 
 
 @dataclass
@@ -42,5 +42,5 @@ class Query:
 
         return self._api.fetch(self)
 
-    def fetchone(self):
+    def fetchone(self) -> model.Model:
         return self._api.fetchone(self)
