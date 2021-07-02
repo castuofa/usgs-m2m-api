@@ -1,6 +1,8 @@
 import random
 import json
+import time
 import getpass
+from usgs.download import DownloadRequestModel, DownloadRequestQuery
 import requests
 
 from logging import getLogger
@@ -58,6 +60,8 @@ class Api:
 
     SESSION_LABEL = f"m2m-label-{random.getrandbits(32)}"
 
+    DOWNLOAD_QUERIES: List[DownloadRequestModel] = []
+
     def __init__(self, username: str = None, password: str = None):
         if not self.API_KEY:
             Api.login(username, password)
@@ -104,12 +108,35 @@ class Api:
             .fetch()
 
     @classmethod
+    def queue(cls, download_query: DownloadRequestQuery, processor: Model):
+        cls.DOWNLOAD_QUERIES.append(cls.fetch(download_query))
+
+    def start_download(self):
+        if self.DOWNLOAD_QUERIES:
+            for download_request_model in self.DOWNLOAD_QUERIES:
+                download_request_model.retrieve()
+                while not download_request_model.ready:
+                    print("Waiting for preparation")
+                    time.sleep(30)
+                for download in download_request_model.downloads:
+                    self.save(download)
+
+    def save(self, download):
+        print(f"Downloading: {download.url} | {download.entityId}")
+        data = self.request(download.url, raw=True)
+        if data:
+            print(f"Writing: {download.entityId}")
+            with open(f"{download.displayId}.tgz", "wb") as fp:
+                fp.write(data)
+            download._saved = True
+
+    @classmethod
     def login(cls, username: str = None, password: str = None):
         """Allows for three options to acquire the API key from EE
         1. Directly pass the keyword arguments for username/password
         2. If neither are provided, the environment variables for EE_USER
            and EE_PASS are checked (or from .env file if exists)
-        3. Direclty prompting the user if 1 or 2 results in None
+        3. Directly prompting the user if 1 or 2 results in None
 
         Parameters
         ----------
@@ -168,7 +195,7 @@ class Api:
         if isinstance(result, dict):
             # We got a paginated result
             result = query._model(**result, _api=cls, _query=query)
-        else:
+        elif result:
             result = cls._build_result(result, query)
         return result
 
@@ -199,7 +226,8 @@ class Api:
                 url: str,
                 data: dict = None,
                 json_data: str = None,
-                api_key: str = None):
+                api_key: str = None,
+                raw: bool = False):
         """The primary request builder for the Earth Explorer M2M API
         This is often called internall from the Api class handler, but
         may also be used directly as needed for more customized requests
@@ -256,6 +284,8 @@ class Api:
         else:
             if error_code or error_message:
                 cls._exit_with_message(error_code, error_message, url)
+            if raw:
+                return response.content
             return response.get('data', None)
 
     @classmethod

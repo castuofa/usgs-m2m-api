@@ -19,3 +19,6 @@ class Model(Relations):
             dictionary version of the dataclass
         """
         return utilities.asdict(self)
+
+    def download_options(self):
+        raise NotImplementedError("Cannot request downloads on this model")

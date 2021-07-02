@@ -20,7 +20,6 @@ class DatasetModel(BaseModel):
     catalogs: list = None
     collectionName: str = None
     collectionLongName: str = None
-    datasetId: str = None
     datasetAlias: str = None
     datasetCategoryName: str = None
     dataOwner: str = None

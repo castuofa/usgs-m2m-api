@@ -3,49 +3,18 @@ from typing import ClassVar, List
 from .model import (
     Model as BaseModel
 )
+from .download import (
+    DownloadModel,
+    DownloadOptionModel,
+    DownloadOptionQuery,
+    DownloadRequestQuery
+)
 from .query import (
     Query as BaseQuery,
 )
 from .filters import (
     SceneFilter
 )
-
-
-@dataclass
-class DownloadModel(BaseModel):
-    entityId: str = None
-    productId: str = None
-
-
-@dataclass
-class DownloadQuery(BaseQuery):
-    downloads: List[DownloadModel] = None
-    label: str = None
-
-
-@dataclass
-class DownloadOptionModel(BaseModel):
-    id: str = None
-    displayId: str = None
-    entityId: str = None
-    datasetId: str = None
-    available: bool = False
-    filesize: int = None
-    productName: str = None
-    productCode: str = None
-    bulkAvailable: bool = False
-    downloadSystem: str = None
-    secondaryDownloads: list = None
-
-
-@dataclass
-class DownloadOptionQuery(BaseQuery):
-    _end_point: ClassVar[str] = "download-options"
-    _model: ClassVar[DownloadOptionModel] = DownloadOptionModel
-
-    datasetName: str = None
-    entityIds: list = None
-    listId: str = None
 
 
 @dataclass
@@ -62,6 +31,7 @@ class SceneModel(BaseModel):
     spatialCoverage: dict = None
     temporalCoverage: dict = None
     orderingId: str = None
+    hasCustomizedMetadata: bool = None
 
     @property
     def datasetName(self):
@@ -105,6 +75,8 @@ class SceneResultSet(BaseModel):
     numExcluded: int = None
     startingNumber: int = None
     nextRecord: int = None
+    totalHitsAccuracy: str = None
+    isCustomized: bool = None
 
     def __post_init__(self):
         if self.results:
@@ -123,11 +95,16 @@ class SceneResultSet(BaseModel):
     def datasetName(self):
         return self._query.datasetName if self._query else None
 
+    def __len__(self):
+        return len(self.results)
+
     def next(self):
         if self.totalHits <= self._query.startingNumber:
             return []
         self._query.startingNumber += self._query.maxResults
-        return self._api.fetch(self._query)
+        self._query._api = self._api
+        # return self._api.fetch(self._query)
+        return self._query.fetch()
 
     def download_options(self) -> List[DownloadOptionModel]:
         """Method to query download availability
@@ -151,18 +128,20 @@ class SceneResultSet(BaseModel):
             lambda option:
                 DownloadModel(
                     entityId=option.entityId,
-                    productId=option.productCode
+                    productId=option.id
                 ),
             filter(
                 lambda option: option.available,
                 download_options
             )
         )
-        download_query = DownloadQuery(
+        download_query = DownloadRequestQuery(
             downloads=list(downloads),
             label=self._api.SESSION_LABEL
         )
-        print(download_query.to_dict())
+        print(download_query)
+        self._api.queue(download_query, self)
+
         return self
 
     def __getitem__(self, key):
