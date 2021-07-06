@@ -23,8 +23,8 @@ def test_login_with_env_vars(mock_request, mock_api, monkeypatch):
 
 
 def test_login_creds_will_force_user_prompt(mock_request, mock_api, monkeypatch):
-    monkeypatch.delenv("EE_USER")
-    monkeypatch.delenv("EE_PASS")
+    monkeypatch.delenv("EE_USER", raising=False)
+    monkeypatch.delenv("EE_PASS", raising=False)
     monkeypatch.setattr("builtins.input", lambda _: "test_user")
     monkeypatch.setattr("getpass.getpass", lambda _: "test_pass")
 
@@ -36,8 +36,8 @@ def test_login_creds_will_force_user_prompt(mock_request, mock_api, monkeypatch)
 
 
 def test_login_creds_cannot_by_empty(mock_api, monkeypatch):
-    monkeypatch.delenv("EE_USER")
-    monkeypatch.delenv("EE_PASS")
+    monkeypatch.delenv("EE_USER", raising=False)
+    monkeypatch.delenv("EE_PASS", raising=False)
     monkeypatch.setattr("builtins.input", lambda _: None)
     monkeypatch.setattr("getpass.getpass", lambda _: None)
 
