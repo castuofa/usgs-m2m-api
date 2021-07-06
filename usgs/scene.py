@@ -1,20 +1,16 @@
 from dataclasses import dataclass
 from typing import ClassVar, List
-from .model import (
-    Model as BaseModel
-)
+from .model import Model as BaseModel
 from .download import (
     DownloadModel,
     DownloadOptionModel,
     DownloadOptionQuery,
-    DownloadRequestQuery
+    DownloadRequestQuery,
 )
 from .query import (
     Query as BaseQuery,
 )
-from .filters import (
-    SceneFilter
-)
+from .filters import SceneFilter
 
 
 @dataclass
@@ -49,8 +45,7 @@ class SceneModel(BaseModel):
         bool
             Boolean whether download is available
         """
-        return self.options.get('download', False) \
-            and self.options.get('bulk', False)
+        return self.options.get("download", False) and self.options.get("bulk", False)
 
     def download_options(self) -> DownloadOptionModel:
         """Method to query download availability
@@ -60,10 +55,7 @@ class SceneModel(BaseModel):
         DownloadOptionModel
         """
         return self.api.fetchone(
-            DownloadOptionQuery(
-                datasetName=self.datasetName,
-                entityIds=[self.entityId]
-            )
+            DownloadOptionQuery(datasetName=self.datasetName, entityIds=[self.entityId])
         )
 
 
@@ -84,11 +76,7 @@ class SceneResultSet(BaseModel):
             self.results = []
             for result in results:
                 self.results.append(
-                    SceneModel(
-                        **result,
-                        _api=self._api,
-                        _query=self._query
-                    )
+                    SceneModel(**result, _api=self._api, _query=self._query)
                 )
 
     @property
@@ -116,28 +104,17 @@ class SceneResultSet(BaseModel):
         """
         entityIds = [scene.entityId for scene in self.results]
         return self.api.fetch(
-            DownloadOptionQuery(
-                datasetName=self.datasetName,
-                entityIds=entityIds
-            )
+            DownloadOptionQuery(datasetName=self.datasetName, entityIds=entityIds)
         )
 
     def queue(self):
         download_options = self.download_options()
         downloads = map(
-            lambda option:
-                DownloadModel(
-                    entityId=option.entityId,
-                    productId=option.id
-                ),
-            filter(
-                lambda option: option.available,
-                download_options
-            )
+            lambda option: DownloadModel(entityId=option.entityId, productId=option.id),
+            filter(lambda option: option.available, download_options),
         )
         download_query = DownloadRequestQuery(
-            downloads=list(downloads),
-            label=self._api.SESSION_LABEL
+            downloads=list(downloads), label=self._api.SESSION_LABEL
         )
         print(download_query)
         self._api.queue(download_query, self)
