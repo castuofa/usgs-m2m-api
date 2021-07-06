@@ -7,11 +7,17 @@ verify_ssl = true
 pytest = "*"
 pylint = "*"
 autopep8 = "*"
+black = "*"
 
 [packages]
 python-dotenv = "*"
 requests = "*"
 python-dateutil = "*"
+pytest = "*"
+clint = "*"
 
 [requires]
 python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true
