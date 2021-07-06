@@ -47,10 +47,7 @@ class TemporalFilter:
 
     @classmethod
     def from_string(cls, startDate, endDate):
-        return cls(
-            parse(startDate),
-            parse(endDate)
-        )
+        return cls(parse(startDate), parse(endDate))
 
 
 @dataclass
@@ -60,15 +57,12 @@ class IngestFilter:
 
     @classmethod
     def from_string(cls, start, end):
-        return cls(
-            parse(start),
-            parse(end)
-        )
+        return cls(parse(start), parse(end))
 
 
 @dataclass
 class SceneFilter:
-    ingestFilter: IngestFilter
-    spatialFilter: SpatialFilter
-    temporalFilter: TemporalFilter
+    ingestFilter: IngestFilter = None
+    spatialFilter: SpatialFilter = None
+    temporalFilter: TemporalFilter = None
     seasonalFilter: List[int] = None

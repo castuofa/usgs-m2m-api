@@ -1,8 +1,6 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, List
-from .model import (
-    Model as BaseModel
-)
+from .model import Model as BaseModel
 from .query import (
     Query as BaseQuery,
 )
@@ -71,20 +69,16 @@ class DownloadRequestModel(BaseModel):
 
     def retrieve(self):
         self._current_downloads = self._api.fetch(
-            DownloadRetrieveQuery(
-                label=self._api.SESSION_LABEL
-            )
+            DownloadRetrieveQuery(label=self._api.SESSION_LABEL)
         )
-        if self.duplicateProducts:
-            for dupe in self.duplicateProducts:
-                print(f"Requesting {self.duplicateProducts[dupe]}")
-                duplicate_request = self._api.fetch(
-                    DownloadRetrieveQuery(
-                        label=self.duplicateProducts[dupe]
-                    )
-                )
-                self._current_downloads.available += duplicate_request.available
-                self._current_downloads.requested += duplicate_request.requested
+        # if self.duplicateProducts:
+        #     for dupe in self.duplicateProducts:
+        #         # print(f"Requesting {self.duplicateProducts[dupe]}")
+        #         duplicate_request = self._api.fetch(
+        #             DownloadRetrieveQuery(label=self.duplicateProducts[dupe])
+        #         )
+        #         self._current_downloads.available += duplicate_request.available
+        #         self._current_downloads.requested += duplicate_request.requested
 
     @property
     def size(self):
@@ -92,17 +86,25 @@ class DownloadRequestModel(BaseModel):
 
     @property
     def requested_ids(self):
-        return list(map(lambda download: download['downloadId'], self.availableDownloads)) \
-            + list(map(lambda download: download['downloadId'], self.preparingDownloads))
+        return list(
+            map(lambda download: download["downloadId"], self.availableDownloads)
+        ) + list(map(lambda download: download["downloadId"], self.preparingDownloads))
 
     @property
     def ready(self):
         self.retrieve()
+        print(self.size)
+        print(len(self.downloads))
         return self.size == len(self.downloads)
 
     @property
     def downloads(self):
-        return list(filter(lambda download: download.downloadId in self.requested_ids, self._current_downloads.get_items()))
+        return list(
+            filter(
+                lambda download: download.downloadId in self.requested_ids,
+                self._current_downloads.get_items(),
+            )
+        )
 
 
 @dataclass

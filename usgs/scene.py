@@ -73,15 +73,21 @@ class SceneResultSet(BaseModel):
     def __post_init__(self):
         if self.results:
             results = self.results
-            self.results = []
-            for result in results:
-                self.results.append(
-                    SceneModel(**result, _api=self._api, _query=self._query)
-                )
+            self.results = map(
+                lambda result: SceneModel(**result, _api=self._api, _query=self._query),
+                results,
+            )
 
     @property
     def datasetName(self):
         return self._query.datasetName if self._query else None
+
+    @property
+    def downloadable(self):
+        downloadable = list(
+            filter(lambda result: result.options.get("download", False), self.results)
+        )
+        return downloadable
 
     def __len__(self):
         return len(self.results)
@@ -94,7 +100,7 @@ class SceneResultSet(BaseModel):
         # return self._api.fetch(self._query)
         return self._query.fetch()
 
-    def download_options(self) -> List[DownloadOptionModel]:
+    def download_options(self, entityIds: List = None) -> List[DownloadOptionModel]:
         """Method to query download availability
 
         Returns
@@ -103,20 +109,25 @@ class SceneResultSet(BaseModel):
             Collection of Download Option Models
         """
         entityIds = [scene.entityId for scene in self.results]
-        return self.api.fetch(
+        options_results: List[DownloadOptionModel] = self.api.fetch(
             DownloadOptionQuery(datasetName=self.datasetName, entityIds=entityIds)
         )
+        return options_results
 
     def queue(self):
-        download_options = self.download_options()
+        downloadable = self.downloadable
+
+        print(len(downloadable))
         downloads = map(
-            lambda option: DownloadModel(entityId=option.entityId, productId=option.id),
-            filter(lambda option: option.available, download_options),
+            lambda scene: DownloadModel(entityId=scene.entityId, productId=scene.id),
+            downloadable,
         )
         download_query = DownloadRequestQuery(
             downloads=list(downloads), label=self._api.SESSION_LABEL
         )
+
         print(download_query)
+
         self._api.queue(download_query, self)
 
         return self

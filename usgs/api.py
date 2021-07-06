@@ -1,9 +1,12 @@
+import os
 import random
 import json
 import time
 import getpass
+import tarfile
 from usgs.download import DownloadRequestModel, DownloadRequestQuery
 import requests
+from clint.textui import progress
 
 from logging import getLogger
 from os import getenv
@@ -16,6 +19,7 @@ from .query import Query
 from .model import Model
 from .queries import *
 from .models import DatasetModel, SceneModel
+from .download import DownloadModel, DownloadOptionQuery, DownloadOptionModel
 
 
 class Api:
@@ -45,18 +49,17 @@ class Api:
 
     """
 
-    log = getLogger('usgs_api')
+    log = getLogger("usgs_api")
 
     API_KEY = None
 
     _STATUS_CODES = {
         404: "404 Not Found",
         401: "401 Unauthorized",
-        400: "General Error"
+        400: "General Error",
     }
 
-    BASE_URL = getenv(
-        'EE_URL', None) or "https://m2m.cr.usgs.gov/api/api/json/stable"
+    BASE_URL = getenv("EE_URL", None) or "https://m2m.cr.usgs.gov/api/api/json/stable"
 
     SESSION_LABEL = f"m2m-label-{random.getrandbits(32)}"
 
@@ -77,8 +80,7 @@ class Api:
         """
         DatasetsQuery._api = self
 
-        return DatasetsQuery(*args, **kwargs) \
-            .fetch()
+        return DatasetsQuery(*args, **kwargs).fetch()
 
     def dataset(self, *args, **kwargs) -> DatasetModel:
         """Alias to the single dataset Model
@@ -91,8 +93,7 @@ class Api:
         """
         DatasetQuery._api = self
 
-        return DatasetQuery(*args, **kwargs) \
-            .fetch()
+        return DatasetQuery(*args, **kwargs).fetch()
 
     def scenes(self, *args, **kwargs) -> List[SceneModel]:
         """Alias to the SceneQuery to allow more convenient
@@ -104,31 +105,93 @@ class Api:
             Returns a ResultSet of the collected scenes
         """
         SceneQuery._api = self
-        return SceneQuery(*args, **kwargs) \
-            .fetch()
+        return SceneQuery(*args, **kwargs).fetch()
 
     @classmethod
-    def queue(cls, download_query: DownloadRequestQuery, processor: Model):
+    def queue(cls, download_query: DownloadRequestQuery):
         cls.DOWNLOAD_QUERIES.append(cls.fetch(download_query))
 
-    def start_download(self):
+    def download(self, scenes: List[SceneModel]):
+
+        data = {}
+        for scene in scenes:
+            dataset = data.get(scene.datasetName, [])
+            dataset.append(scene.entityId)
+            data[scene.datasetName] = dataset
+
+        options_results: List[DownloadOptionModel] = []
+
+        for dataset in data.keys():
+            options_results.extend(
+                self.fetch(
+                    DownloadOptionQuery(datasetName=dataset, entityIds=data[dataset])
+                )
+            )
+
+        downloads = map(
+            lambda option: DownloadModel(entityId=option.entityId, productId=option.id),
+            options_results,
+        )
+
+        download_query = DownloadRequestQuery(
+            downloads=list(downloads), label=self.SESSION_LABEL
+        )
+
+        self.queue(download_query)
+
+        return self
+
+    def start_download(self, extract: bool = False):
         if self.DOWNLOAD_QUERIES:
             for download_request_model in self.DOWNLOAD_QUERIES:
-                download_request_model.retrieve()
+                # download_request_model.retrieve()
                 while not download_request_model.ready:
                     print("Waiting for preparation")
-                    time.sleep(30)
-                for download in download_request_model.downloads:
-                    self.save(download)
+                    time.sleep(5)
 
-    def save(self, download):
+                # Save the files
+                for download in download_request_model.downloads:
+                    self.save(download, extract)
+
+            # Reset the queue
+            self.DOWNLOAD_QUERIES = list(
+                filter(
+                    lambda download_request: download_request._saved is False,
+                    self.DOWNLOAD_QUERIES,
+                )
+            )
+
+    def save(self, download, extract: bool = False):
         print(f"Downloading: {download.url} | {download.entityId}")
-        data = self.request(download.url, raw=True)
-        if data:
-            print(f"Writing: {download.entityId}")
-            with open(f"{download.displayId}.tgz", "wb") as fp:
-                fp.write(data)
-            download._saved = True
+
+        filePath = f"{download.displayId}.tgz"
+
+        with open(filePath, "wb") as fp:
+            request = requests.get(download.url, stream=True)
+
+            total_length = int(request.headers.get("content-length"))
+
+            for chunk in progress.bar(
+                request.iter_content(chunk_size=1024),
+                expected_size=(total_length / 1024) + 1,
+            ):
+                if chunk:
+                    fp.write(chunk)
+
+        download._saved = True
+
+        if extract:
+            self._extract_tar(filePath)
+            os.unlink(filePath)
+
+    def _extract_tar(self, filePath):
+        tar = tarfile.open(filePath, "r")
+        print(f"Extracting: {filePath}")
+        for item in tar:
+            dirpath = os.path.abspath(
+                os.path.basename("".join(filePath.split(".")[:-1]))
+            )
+            tar.extract(item, dirpath)
 
     @classmethod
     def login(cls, username: str = None, password: str = None):
@@ -151,20 +214,19 @@ class Api:
             A static Api class with the API key persisted
         """
 
-        username = username or \
-            getenv('EE_USER', None) or \
-            input("Please enter username > ")
+        username = (
+            username or getenv("EE_USER", None) or input("Please enter username > ")
+        )
 
-        password = password or \
-            getenv('EE_PASS', None) \
+        password = (
+            password
+            or getenv("EE_PASS", None)
             or getpass.getpass("Please enter EE password > ")
+        )
 
         login_url = f"{cls.BASE_URL}/login"
 
-        login_parameters = {
-            'username': username,
-            'password': password
-        }
+        login_parameters = {"username": username, "password": password}
 
         if not username or not password:
             raise ValueError("Username or Password must be defined")
@@ -187,10 +249,7 @@ class Api:
         List[Model]
             Returns a list of instantiated Models
         """
-        result = cls.request(
-            query.endpoint(cls.BASE_URL),
-            data=query.to_dict()
-        )
+        result = cls.request(query.endpoint(cls.BASE_URL), data=query.to_dict())
 
         if isinstance(result, dict):
             # We got a paginated result
@@ -222,12 +281,16 @@ class Api:
         return data
 
     @classmethod
-    def request(cls,
-                url: str,
-                data: dict = None,
-                json_data: str = None,
-                api_key: str = None,
-                raw: bool = False):
+    def request(
+        cls,
+        url: str,
+        data: dict = None,
+        json_data: str = None,
+        api_key: str = None,
+        raw: bool = False,
+        chunk: bool = False,
+        chunk_size: int = 1024,
+    ):
         """The primary request builder for the Earth Explorer M2M API
         This is often called internall from the Api class handler, but
         may also be used directly as needed for more customized requests
@@ -244,6 +307,12 @@ class Api:
             json_data must be set. by default None
         api_key : str, optional
             The EE api key obtained from Api.login. by default None
+        raw: bool, optional
+            Returns the raw content of the requests (requests.content)
+        chunk: bool, optional
+            Returns an iterator, relative to the chunk size, for data. This overrides raw behavior
+        chunk_size: int, 1024
+            If chunk is enabled, this defines the chunk size for the iterator
 
         Returns
         -------
@@ -256,9 +325,7 @@ class Api:
         post_data = json.dumps(data) if data else json_data
 
         request = requests.post(
-            url,
-            post_data,
-            headers={'X-Auth-Token': api_key} if api_key else {}
+            url, post_data, headers={"X-Auth-Token": api_key} if api_key else {}
         )
 
         # Anyone home?
@@ -269,8 +336,8 @@ class Api:
             response = json.loads(request.text)
 
             # Verbose server side error
-            error_code = response.get('errorCode', None)
-            error_message = response.get('errorMessage', None)
+            error_code = response.get("errorCode", None)
+            error_message = response.get("errorMessage", None)
 
             # Status code errors
             error_message = cls._STATUS_CODES.get(request.status_code, None)
@@ -279,14 +346,16 @@ class Api:
 
         except Exception as e:
             request.close()
-            cls._exit_with_message(None, f'{url} | {e}')
+            cls._exit_with_message(None, f"{url} | {e}")
 
         else:
             if error_code or error_message:
                 cls._exit_with_message(error_code, error_message, url)
+            if chunk:
+                return response.iter_content(chunk_size=chunk_size)
             if raw:
                 return response.content
-            return response.get('data', None)
+            return response.get("data", None)
 
     @classmethod
     def _exit_with_message(cls, code, message: str, url: str = None):
@@ -306,9 +375,7 @@ class Api:
         SystemExit
             As the end point failed in this case, the app is halted
         """
-        cls.log.error(
-            f"Error | Url: {url} | Code: {code} | Returned: {message}"
-        )
+        cls.log.error(f"Error | Url: {url} | Code: {code} | Returned: {message}")
 
         raise SystemExit(1)
 
