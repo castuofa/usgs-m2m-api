@@ -24,7 +24,12 @@ Test-Pytest:
     script:
     - pip install pipenv
     - pipenv install
-    - pipenv run pytest
+    - pipenv run pytest --junitxml=report.xml
+    artifacts:
+        when: always
+        reports:
+            junit: report.xml
+        expire_in: 2 weeks
 
 pages:
     image: alpine:latest
