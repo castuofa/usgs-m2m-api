@@ -1,6 +1,7 @@
 image: "python:3.9"
 
 stages:
+    - test
     - build
     - deploy
 
@@ -17,6 +18,13 @@ build_package:
         untracked: true
         paths:
         - public/usgs
+
+Test-Pytest:
+    stage: test
+    script:
+    - pip install pipenv
+    - pipenv install
+    - pipenv run pytest
 
 pages:
     image: alpine:latest
