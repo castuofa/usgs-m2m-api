@@ -43,28 +43,31 @@ api = Api.login()
 ### If you want to directly type your user:password you can use
 api = Api(username="user_name", password="password")
 ```
-_Create a query object_
+_Query a dataset by name_
 ```python
-from usgs_api import dataset
-query = dataset.Query(
-  datasetName="corona2"
-)
+dataset = api.dataset(datasetName="corona2")
 ```
-_Fetch the dataset_
+_Start a scene cursor with a list of scenes_
 ```python
-dataset = api.fetchone(query)
-```
-_Collect scenes from dataset_
-```python
-scenes = dataset.scenes()
+scene_cursor = dataset.scenes()
 ```
 _Collect only available scenes to queue for download_
 ```python
-downloadable_scenes = list(
-  filter(
-    lambda scene: scene.options.get('download', False),
-    scenes
-  )
-)
+downloadable = scene_cursor.downloadable
 ```
+_Iterate the cursor to collect more scenes_
+```python
+downloadable += scene_cursor.next().downloadable
+```
+_Enqueue the scenes for download from the Api_
+```python
+api.download(scenes)
+```
+_Start the download and automate the extraction_
+```python
+api.start_download(extract=True)
+```
+
+
+
 

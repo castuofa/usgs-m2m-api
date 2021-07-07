@@ -71,14 +71,37 @@ class DownloadRequestModel(BaseModel):
         self._current_downloads = self._api.fetch(
             DownloadRetrieveQuery(label=self._api.SESSION_LABEL)
         )
-        # if self.duplicateProducts:
-        #     for dupe in self.duplicateProducts:
-        #         # print(f"Requesting {self.duplicateProducts[dupe]}")
-        #         duplicate_request = self._api.fetch(
-        #             DownloadRetrieveQuery(label=self.duplicateProducts[dupe])
-        #         )
-        #         self._current_downloads.available += duplicate_request.available
-        #         self._current_downloads.requested += duplicate_request.requested
+
+        available = {
+            product.get("entityId"): product
+            for product in self._current_downloads.available
+        }
+        requested = {
+            product.get("entityId"): product
+            for product in self._current_downloads.requested
+        }
+
+        if self.duplicateProducts:
+            for dupe in self.duplicateProducts:
+                # print(f"Requesting {self.duplicateProducts[dupe]}")
+                duplicate_request = self._api.fetch(
+                    DownloadRetrieveQuery(label=self.duplicateProducts[dupe])
+                )
+                for avail in duplicate_request.available:
+                    available[avail.entityId] = avail
+                    requested.pop(avail.entityId, None)
+
+                for req in duplicate_request.requested:
+                    if available.get(req.entityId, None) is not None:
+                        requested.pop(req.entityId, None)
+                    else:
+                        requested[req.entityId] = req
+
+                # self._current_downloads.available += duplicate_request.available
+                # self._current_downloads.requested += duplicate_request.requested
+
+        self._current_downloads.available = list(available.values())
+        self._current_downloads.requested = list(requested.values())
 
     @property
     def size(self):

@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from datetime import date
-from usgs import dataset, scene, Api
+from usgs import Api
 
 from usgs.filters import TemporalFilter, SceneFilter
 
@@ -20,17 +20,17 @@ if __name__ == "__main__":
     )
 
     # Get a scene cursor using the filter
-    scene_cursor = api.dataset(datasetName="corona2").scenes()
+    scene_cursor = api.dataset(datasetName="corona2").scenes(sceneFilter=scene_filter)
 
+    # Capture only those available for download
     scenes = scene_cursor.downloadable
 
+    # Collect more scenes using the scene cursor
     while len(scenes) < 3:
         scenes += scene_cursor.next().downloadable
 
+    # Enqueue the scenes
     api.download(scenes)
 
-    print(api.DOWNLOAD_QUERIES)
-
+    # Start the download with the extraction flag
     api.start_download(extract=True)
-
-    print(api.SESSION_LABEL)
