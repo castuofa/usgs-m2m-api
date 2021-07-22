@@ -169,12 +169,19 @@ class Api:
     def save(self, download, extract: bool = False):
         print(f"Downloading: {download.url} | {download.entityId}")
 
-        filePath = f"{download.displayId}.tgz"
+        file_types = {"image/tiff": "tif", "application/zip": "zip"}
+
+        filePath = f"{download.displayId}"
+
+        request = requests.get(download.url, stream=True)
+
+        total_length = int(request.headers.get("content-length"))
+        file_type = request.headers.get("content-type")
+
+        extension = file_types.get(file_type, "tgz")
+        filePath = f"{filePath}.{extension}"
 
         with open(filePath, "wb") as fp:
-            request = requests.get(download.url, stream=True)
-
-            total_length = int(request.headers.get("content-length"))
 
             for chunk in progress.bar(
                 request.iter_content(chunk_size=1024),
@@ -185,9 +192,17 @@ class Api:
 
         download._saved = True
 
+        extract_router = {"tif": self._tiff, "zip": self._zip, "tgz": self._extract_tar}
+
         if extract:
-            self._extract_tar(filePath)
-            os.unlink(filePath)
+            route = extract_router.get(extension, self._extract_tar)
+            route(filePath)
+
+    def _zip(self, filePath):
+        pass
+
+    def _tiff(self, filePath):
+        pass
 
     def _extract_tar(self, filePath):
         tar = tarfile.open(filePath, "r")
@@ -197,6 +212,8 @@ class Api:
                 os.path.basename("".join(filePath.split(".")[:-1]))
             )
             tar.extract(item, dirpath)
+
+        os.unlink(filePath)
 
     @classmethod
     def login(cls, username: str = None, password: str = None):
