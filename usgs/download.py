@@ -66,6 +66,7 @@ class DownloadRequestModel(BaseModel):
     availableDownloads: list = None
     preparingDownloads: list = None
     _current_downloads: DownloadRetrieveModel = None
+    _saved: bool = False
 
     def retrieve(self):
         self._current_downloads = self._api.fetch(
@@ -103,7 +104,7 @@ class DownloadRequestModel(BaseModel):
 
     @property
     def size(self):
-        return len(self.availableDownloads) + len(self.preparingDownloads)
+        return self._current_downloads.size
 
     @property
     def requested_ids(self):
