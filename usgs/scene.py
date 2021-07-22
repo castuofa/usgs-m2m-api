@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import ClassVar, List
 from .model import Model as BaseModel
@@ -73,9 +74,13 @@ class SceneResultSet(BaseModel):
     def __post_init__(self):
         if self.results:
             results = self.results
-            self.results = map(
-                lambda result: SceneModel(**result, _api=self._api, _query=self._query),
-                results,
+            self.results = list(
+                map(
+                    lambda result: SceneModel(
+                        **result, _api=self._api, _query=self._query
+                    ),
+                    results,
+                )
             )
 
     @property
@@ -89,16 +94,21 @@ class SceneResultSet(BaseModel):
         )
         return downloadable
 
+    @property
+    def has_more(self):
+        return self.totalHits < self._query.startingNumber + self.recordsReturned - 1
+
     def __len__(self):
         return len(self.results)
 
-    def next(self):
-        if self.totalHits <= self._query.startingNumber:
-            return []
-        self._query.startingNumber += self._query.maxResults
-        self._query._api = self._api
-        # return self._api.fetch(self._query)
-        return self._query.fetch()
+    def next(self) -> SceneResultSet:
+        if self.has_more:
+            self._query.startingNumber += self._query.maxResults
+            self._query._api = self._api
+            # return self._api.fetch(self._query)
+            return self._query.fetch()
+
+        return self
 
     def download_options(self, entityIds: List = None) -> List[DownloadOptionModel]:
         """Method to query download availability
