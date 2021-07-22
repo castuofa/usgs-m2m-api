@@ -20,6 +20,10 @@ class Point:
 class SpatialFilter:
     filterType: str = None
 
+    @staticmethod
+    def make_point(lat: float, lon: float) -> Point:
+        return Point(latitude=lat, longitude=lon)
+
 
 @dataclass
 class SpatialMbr(SpatialFilter):
