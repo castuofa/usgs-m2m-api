@@ -2,10 +2,7 @@ from dataclasses import dataclass
 from typing import ClassVar, List
 from .model import Model as BaseModel
 from .query import Query as BaseQuery
-from .filters import (
-    SpatialFilter,
-    TemporalFilter
-)
+from .filters import AcquisitionFilter, SpatialFilter
 from . import scene
 
 
@@ -50,7 +47,7 @@ class DatasetModel(BaseModel):
     #     return self._bulk_products
 
     def scenes(self, *args, **kwargs) -> List[scene.SceneModel]:
-        kwargs['datasetName'] = self.datasetAlias
+        kwargs["datasetName"] = self.datasetAlias
         query = scene.SceneQuery(*args, **kwargs)
         return self.has_many(query)
 
@@ -63,7 +60,7 @@ class DatasetsQuery(BaseQuery):
 
     datasetName: str = None
     spatialFilter: SpatialFilter = None
-    temporalFilter: TemporalFilter = None
+    temporalFilter: AcquisitionFilter = None
 
     catalog: str = None
     categoryId: str = None
