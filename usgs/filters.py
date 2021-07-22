@@ -36,12 +36,12 @@ class GeoJson:
 
 @dataclass
 class SpatialGeojson(SpatialFilter):
-    geoJson: GeoJson = None
     filterType: str = "geojson"
+    geoJson: GeoJson = None
 
 
 @dataclass
-class TemporalFilter:
+class DateRange:
     startDate: datetime.date
     endDate: datetime.date
 
@@ -52,8 +52,22 @@ class TemporalFilter:
 
 @dataclass
 class IngestFilter:
+    """
+    Used to apply an ingest filter that limits by the dates the scenes
+    were added to the catalog
+
+    Paramters
+    ---------
+    start : datetime.date
+    end : datetime.date
+    """
+
     start: datetime.date
     end: datetime.date = None
+
+    def __post_init__(self):
+        if not self.end:
+            self.end = datetime.datetime.now()
 
     @classmethod
     def from_string(cls, start, end):
@@ -61,8 +75,49 @@ class IngestFilter:
 
 
 @dataclass
+class AcquisitionFilter:
+    """
+    Used to apply a acquisition date filter to scene searches
+
+    For string based searching, use the utility factory AcquisitionFilter.from_string()
+
+    Paramters
+    ---------
+    start : datetime.date
+    end : datetime.date
+    """
+
+    start: datetime.date
+    end: datetime.date = None
+
+    def __post_init__(self):
+        if not self.end:
+            self.end = datetime.datetime.now()
+
+    @classmethod
+    def from_string(cls, start, end):
+        return cls(parse(start), parse(end))
+
+
+@dataclass
+class CloudCoverFilter:
+    min: int
+    max: int
+    includeUnknown: bool = True
+
+
+@dataclass
 class SceneFilter:
     ingestFilter: IngestFilter = None
     spatialFilter: SpatialFilter = None
-    temporalFilter: TemporalFilter = None
+    acquisitionFilter: AcquisitionFilter = None
+    cloudCoverFilter: CloudCoverFilter = None
+
+    # Seasonal Filter is essentially a 1-12 list of months
     seasonalFilter: List[int] = None
+
+    ## TODO: implement factory methods for subfilters
+    # scene_filter.acquired(start, end)
+    # scene_filter.within_mbr(ll, ur)
+    # scene_filter.within_geometry(geojson)
+    # scene_filter.season('summer')
