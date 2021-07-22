@@ -46,7 +46,7 @@ class DatasetModel(BaseModel):
 
     #     return self._bulk_products
 
-    def scenes(self, *args, **kwargs) -> List[scene.SceneModel]:
+    def scenes(self, *args, **kwargs) -> scene.SceneResultSet:
         kwargs["datasetName"] = self.datasetAlias
         query = scene.SceneQuery(*args, **kwargs)
         return self.has_many(query)
