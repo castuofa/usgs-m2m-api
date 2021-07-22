@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from datetime import date
 from usgs import Api
 
-from usgs.filters import TemporalFilter, SceneFilter
+from usgs.filters import AcquisitionFilter, SceneFilter
 
 
 if __name__ == "__main__":
@@ -12,10 +12,10 @@ if __name__ == "__main__":
     # Instantiate the Usgs API
     api = Api()
 
-    # Create a Scene filter with a temporal filter
+    # Create a Scene filter with an acquisition filter
     scene_filter = SceneFilter(
-        temporalFilter=TemporalFilter(
-            startDate=date(2019, 5, 24), endDate=date(2019, 5, 31)
+        acquisitionFilter=AcquisitionFilter(
+            start=date(1972, 5, 24), end=date(1972, 5, 31)
         )
     )
 
