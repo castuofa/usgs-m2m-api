@@ -73,12 +73,10 @@ class DownloadRequestModel(BaseModel):
         )
 
         available = {
-            product.get("entityId"): product
-            for product in self._current_downloads.available
+            product.entityId: product for product in self._current_downloads.available
         }
         requested = {
-            product.get("entityId"): product
-            for product in self._current_downloads.requested
+            product.entityId: product for product in self._current_downloads.requested
         }
 
         if self.duplicateProducts:
