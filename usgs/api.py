@@ -4,22 +4,27 @@ import json
 import time
 import getpass
 import tarfile
-from usgs.download import DownloadRequestModel, DownloadRequestQuery
+import datetime
+from os import getenv
+from typing import List
+
 import requests
 from clint.textui import progress
 
+from usgs.download import DownloadRequestModel, DownloadRequestQuery
 from logging import getLogger
-from os import getenv
-
-from dataclasses import dataclass
-from typing import List
-
 
 from .query import Query
 from .model import Model
 from .queries import *
 from .models import DatasetModel, SceneModel
-from .download import DownloadModel, DownloadOptionQuery, DownloadOptionModel
+from .download import (
+    DownloadModel,
+    DownloadOptionQuery,
+    DownloadOptionModel,
+    DownloadRequestModel,
+    DownloadRequestQuery,
+)
 
 
 class Api:
@@ -322,7 +327,7 @@ class Api:
 
         api_key = api_key or cls.API_KEY
 
-        post_data = json.dumps(data) if data else json_data
+        post_data = json.dumps(data, cls=DataTypeEncoder) if data else json_data
 
         request = requests.post(
             url, post_data, headers={"X-Auth-Token": api_key} if api_key else {}
@@ -397,3 +402,18 @@ class Api:
             List of instantiated Models for the results
         """
         return [query._model(**item, _api=cls, _query=query) for item in results]
+
+
+class DataTypeEncoder(json.JSONEncoder):
+
+    """
+    A special JSON encoder to produce ISO 8601 formats from datetime objects
+    """
+
+    def default(self, obj):
+        if isinstance(obj, (datetime.datetime, datetime.date, datetime.time)):
+            return obj.isoformat()
+        elif isinstance(obj, datetime.timedelta):
+            return (datetime.datetime.min + obj).time().isoformat()
+
+        return super().default(obj)
