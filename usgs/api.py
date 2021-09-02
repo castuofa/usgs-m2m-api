@@ -11,7 +11,7 @@ from typing import List
 import requests
 from clint.textui import progress
 
-from usgs.download import DownloadRequestModel, DownloadRequestQuery
+from .download import DownloadRequestModel, DownloadRequestQuery
 from logging import getLogger
 
 from .query import Query
