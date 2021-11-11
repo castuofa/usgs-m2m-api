@@ -96,7 +96,7 @@ class SceneResultSet(BaseModel):
 
     @property
     def has_more(self):
-        return self.totalHits < self._query.startingNumber + self.recordsReturned - 1
+        return self.totalHits > self._query.startingNumber + self.recordsReturned - 1
 
     def __len__(self):
         return len(self.results)
