@@ -18,3 +18,6 @@ class Relations:
 
     def has_many(self, query):
         return self.api.fetch(query)
+
+    def has_one(self, query):
+        return self.api.fetchone(query)

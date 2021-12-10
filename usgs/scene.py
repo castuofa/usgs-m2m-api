@@ -170,3 +170,35 @@ class SceneQuery(BaseQuery):
 
     maxResults: int = 100
     startingNumber: int = 1
+
+
+@dataclass
+class SceneMetadataQuery(BaseQuery):
+
+    """Base Query object that handles utility type methods
+
+    Raises
+    ------
+    NotImplementedError
+        Thrown when method doesn't exist or wasn't overridden
+        by inherited object
+    """
+
+    _end_point: ClassVar[str] = "scene-metadata"
+    _model: ClassVar[str] = SceneModel
+
+    datasetName: str
+    entityId: str
+
+    metadataType: str = None
+    includeNullMetadataValues: bool = None
+    useCustomization: bool = None
+
+    def fetch(self) -> SceneModel:
+        if not self._api:
+            raise ValueError("API must be instantiated first")
+
+        return self._api.fetch(self)
+
+    def fetchone(self) -> SceneModel:
+        return self._api.fetchone(self)

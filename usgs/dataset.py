@@ -17,7 +17,6 @@ class DatasetModel(BaseModel):
     catalogs: list = None
     collectionName: str = None
     collectionLongName: str = None
-    datasetAlias: str = None
     datasetCategoryName: str = None
     dataOwner: str = None
     dateUpdated: str = None
@@ -50,6 +49,11 @@ class DatasetModel(BaseModel):
         kwargs["datasetName"] = self.datasetAlias
         query = scene.SceneQuery(*args, **kwargs)
         return self.has_many(query)
+
+    def scene(self, *args, **kwargs) -> scene.SceneModel:
+        kwargs["datasetName"] = self.datasetAlias
+        query = scene.SceneMetadataQuery(*args, **kwargs)
+        return self.has_one(query)
 
 
 @dataclass
