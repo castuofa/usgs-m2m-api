@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import ClassVar, List
 from .model import Model as BaseModel
 from .query import (
@@ -115,6 +115,8 @@ class DownloadRequestModel(BaseModel):
     @property
     def ready(self):
         self.retrieve()
+        print(self._current_downloads.available)
+        print(self._current_downloads.requested)
         print(self.size)
         print(len(self.downloads))
         return self.size == len(self.downloads)
