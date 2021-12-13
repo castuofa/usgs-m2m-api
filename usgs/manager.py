@@ -112,7 +112,10 @@ class DownloadManager:
 
         print(self._original_request)
 
-        self._labels += list(self._original_request.duplicateProducts.values())
+        if not isinstance(self._original_request.duplicateProducts, list):
+            # Apparently the behavior of the API changes to return an empty list if no dupes
+            # Otherwise it returns an object - fun fun
+            self._labels += list(self._original_request.duplicateProducts.values())
 
     def start(self):
 
