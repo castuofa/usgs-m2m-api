@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from typing import ClassVar, List
 from .model import Model as BaseModel
@@ -31,6 +32,11 @@ class DatasetModel(BaseModel):
     supportDeletionSearch: bool = None
 
     _bulk_products: list = None
+
+    def __post_init__(self):
+        # List needs to be constructed from string
+        if self.temporalCoverage and isinstance(self.temporalCoverage, str):
+            self.temporalCoverage = json.loads(self.temporalCoverage)
 
     # @property
     # def bulk_products(self):
