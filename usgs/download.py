@@ -58,8 +58,15 @@ class DownloadRetrieveQuery(BaseQuery):
 
 
 @dataclass
+class DownloadRequestFailedModel(BaseModel):
+    productId: str = None
+    entityId: str = None
+    errorMessage: str = None
+
+
+@dataclass
 class DownloadRequestModel(BaseModel):
-    failed: list = None
+    failed: List[DownloadRequestFailedModel] = None
     newRecords: dict = None
     numInvalidScenes: int = None
     duplicateProducts: list = None

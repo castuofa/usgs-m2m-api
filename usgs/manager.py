@@ -110,6 +110,12 @@ class DownloadManager:
         # Submit the download request of the batch
         self._original_request = self.api.fetch(download_query)
 
+        # Apparently if request failures occur, it's at this point
+        # Let's clear the failed requests from the requested queue
+        for _failed in self._original_request.failed:
+            self._requested.pop(_failed.entityId)
+            self._failed[_failed.entityId] = _failed.errorMessage
+
         print(self._original_request)
 
         if not isinstance(self._original_request.duplicateProducts, list):
