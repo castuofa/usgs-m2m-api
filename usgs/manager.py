@@ -113,8 +113,8 @@ class DownloadManager:
         # Apparently if request failures occur, it's at this point
         # Let's clear the failed requests from the requested queue
         for _failed in self._original_request.failed:
-            self._requested.pop(_failed.entityId)
-            self._failed[_failed.entityId] = _failed.errorMessage
+            self._requested.pop(_failed.get('entityId'))
+            self._failed[_failed.get('entityId')] = _failed.get('errorMessage')
 
         print(self._original_request)
 
