@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "usgs-api"
+name = "usgs-m2m-api"
 version = "0.2.0"
 description = "An object oriented method for working with the USGS EE machine-2-machine API v1.5"
 readme = "README.md"
