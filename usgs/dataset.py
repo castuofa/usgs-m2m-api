@@ -1,6 +1,8 @@
 import json
 from dataclasses import dataclass
 from typing import ClassVar, List
+
+from .download import DownloadOptionModel, DownloadOptionQuery
 from .model import Model as BaseModel
 from .query import Query as BaseQuery
 from .filters import AcquisitionFilter, SpatialFilter
@@ -60,6 +62,16 @@ class DatasetModel(BaseModel):
         kwargs["datasetName"] = self.datasetAlias
         query = scene.SceneMetadataQuery(*args, **kwargs)
         return self.has_one(query)
+
+    def download_options(self, scene_ids: List[str]) -> List[DownloadOptionModel]:
+        """
+        Allows querying specific download options for a list of scene_ids.
+        """
+        query = DownloadOptionQuery(
+            datasetName=self.datasetAlias,
+            entityIds=scene_ids
+        )
+        return self.has_many(query)
 
 
 @dataclass

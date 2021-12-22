@@ -76,13 +76,21 @@ class DownloadManager:
 
         return self
 
-    def add_scenes(self, scenes):
+    def add_scenes(self, scenes: List[Union[str, SceneModel]]):
+        # Compile entity_ids
+        scene_ids = []
+
+        for scene in scenes:
+            if isinstance(scene, SceneModel):
+                _id = scene.entityId
+            else:
+                _id = scene
+            scene_ids.append(_id)
+
         # Fetch the download capabilities
         options_result: List[DownloadOptionModel] = self.api.fetch(
-            DownloadOptionQuery(datasetName=self.dataset.datasetAlias, entityIds=scenes)
+            DownloadOptionQuery(datasetName=self.dataset.datasetAlias, entityIds=scene_ids)
         )
-
-        print(options_result)
 
         for option_result in options_result:
           self._option_models[option_result.entityId] = option_result

@@ -1,30 +1,18 @@
-import os
 import random
 import json
-import time
 import getpass
-import tarfile
 import datetime
 from os import getenv
 from typing import List
 
 import requests
-from clint.textui import progress
 
-from .download import DownloadRequestModel, DownloadRequestQuery
 from logging import getLogger
 
 from .query import Query
 from .model import Model
 from .queries import *
 from .models import DatasetModel, SceneModel
-from .download import (
-    DownloadModel,
-    DownloadOptionQuery,
-    DownloadOptionModel,
-    DownloadRequestModel,
-    DownloadRequestQuery,
-)
 
 
 class Api:
@@ -68,8 +56,6 @@ class Api:
 
     SESSION_LABEL = f"m2m-label-{random.getrandbits(32)}"
 
-    DOWNLOAD_QUERIES: List[DownloadRequestModel] = []
-
     def __init__(self, username: str = None, password: str = None):
         if not self.API_KEY:
             Api.login(username, password)
@@ -111,109 +97,6 @@ class Api:
         """
         SceneQuery._api = self
         return SceneQuery(*args, **kwargs).fetch()
-
-    @classmethod
-    def queue(cls, download_query: DownloadRequestQuery):
-        cls.DOWNLOAD_QUERIES.append(cls.fetch(download_query))
-
-    def download(self, scenes: List[SceneModel]):
-
-        data = {}
-        for scene in scenes:
-            dataset = data.get(scene.datasetName, [])
-            dataset.append(scene.entityId)
-            data[scene.datasetName] = dataset
-
-        options_results: List[DownloadOptionModel] = []
-
-        for dataset in data.keys():
-            options_results.extend(
-                self.fetch(
-                    DownloadOptionQuery(datasetName=dataset, entityIds=data[dataset])
-                )
-            )
-
-        downloads = map(
-            lambda option: DownloadModel(entityId=option.entityId, productId=option.id),
-            options_results,
-        )
-
-        download_query = DownloadRequestQuery(
-            downloads=list(downloads), label=self.SESSION_LABEL
-        )
-
-        self.queue(download_query)
-
-        return self
-
-    def start_download(self, extract: bool = False):
-        if self.DOWNLOAD_QUERIES:
-            for download_request_model in self.DOWNLOAD_QUERIES:
-                # download_request_model.retrieve()
-                while not download_request_model.ready:
-                    print("Waiting for preparation")
-                    time.sleep(5)
-
-                # Save the files
-                for download in download_request_model.downloads:
-                    self.save(download, extract)
-
-            # Reset the queue
-            self.DOWNLOAD_QUERIES = list(
-                filter(
-                    lambda download_request: download_request._saved is False,
-                    self.DOWNLOAD_QUERIES,
-                )
-            )
-
-    def save(self, download, extract: bool = False):
-        print(f"Downloading: {download.url} | {download.entityId}")
-
-        file_types = {"image/tiff": "tif", "application/zip": "zip"}
-
-        filePath = f"{download.displayId}"
-
-        request = requests.get(download.url, stream=True)
-
-        total_length = int(request.headers.get("content-length"))
-        file_type = request.headers.get("content-type")
-
-        extension = file_types.get(file_type, "tgz")
-        filePath = f"{filePath}.{extension}"
-
-        with open(filePath, "wb") as fp:
-
-            for chunk in progress.bar(
-                request.iter_content(chunk_size=1024),
-                expected_size=(total_length / 1024) + 1,
-            ):
-                if chunk:
-                    fp.write(chunk)
-
-        download._saved = True
-
-        extract_router = {"tif": self._tiff, "zip": self._zip, "tgz": self._extract_tar}
-
-        if extract:
-            route = extract_router.get(extension, self._extract_tar)
-            route(filePath)
-
-    def _zip(self, filePath):
-        pass
-
-    def _tiff(self, filePath):
-        pass
-
-    def _extract_tar(self, filePath):
-        tar = tarfile.open(filePath, "r")
-        print(f"Extracting: {filePath}")
-        for item in tar:
-            dirpath = os.path.abspath(
-                os.path.basename("".join(filePath.split(".")[:-1]))
-            )
-            tar.extract(item, dirpath)
-
-        os.unlink(filePath)
 
     @classmethod
     def login(cls, username: str = None, password: str = None):
