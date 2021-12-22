@@ -5,6 +5,10 @@ description = "An object oriented method for working with the USGS EE machine-2-
 readme = "README.md"
 authors = ["Christopher Angel <cangel@uark.edu>"]
 license = "MIT"
+packages = [
+    { include = "usgs" },
+]
+
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
