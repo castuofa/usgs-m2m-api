@@ -45,8 +45,8 @@ Build-Python-Dist:
 
 Prod-Publish-Python-Package:
     stage: publish
-    # only:
-    #     - tags
+    only:
+        - tags
     variables:
         TWINE_USERNAME: $PROD_USERNAME
         TWINE_PASSWORD: $PROD_PASSWORD
