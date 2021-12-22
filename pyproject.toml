@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "usgs-m2m"
+version = "0.2.0"
+description = "An object oriented method for working with the USGS EE machine-2-machine API v1.5"
+readme = "README.md"
+authors = ["Christopher Angel <cangel@uark.edu>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.10"
+python-dotenv = "^0.19.2"
+requests = "^2.26.0"
+python-dateutil = "^2.8.2"
+clint = "^0.5.1"
+urllib3 = "1.26.7"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+black = "^21.12b0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

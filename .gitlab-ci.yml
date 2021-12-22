@@ -5,31 +5,58 @@ stages:
     - build
     - deploy
 
-build_package:
-    stage: build
-    script:
-    - pip install pipenv
-    - pipenv install
-    - pipenv install pdoc3
-    # Build not necessary for submodules
-    # - pipenv run python setup.py bdist_wheel
-    - pipenv run pdoc --html --output-dir public usgs
-    artifacts:
-        untracked: true
-        paths:
-        - public/usgs
-
 Test-Pytest:
     stage: test
     script:
-    - pip install pipenv
-    - pipenv install
-    - pipenv run pytest --junitxml=report.xml
+    - pip install poetry
+    - poetry install
+    - poetry run pytest --junitxml=report.xml
     artifacts:
         when: always
         reports:
             junit: report.xml
         expire_in: 2 weeks
+
+build_package:
+    stage: build
+    script:
+    - pip install poetry
+    - poetry install
+    - poetry add pdoc3
+    # Build not necessary for submodules
+    # - pipenv run python setup.py bdist_wheel
+    - poetry run pdoc --html --output-dir public usgs
+    artifacts:
+        untracked: true
+        paths:
+        - public/usgs
+
+Build-Python-Dist:
+    stage: build
+    script:
+    - pip install poetry
+    - poetry install
+    - poetry build
+    artifacts:
+        untracked: true
+        paths:
+        - dist
+
+Prod-Publish-Python-Package:
+    stage: publish
+    only:
+        - tags
+    variables:
+        TWINE_USERNAME: $PROD_USERNAME
+        TWINE_PASSWORD: $PROD_PASSWORD
+    script:
+        - pip install poetry
+        - echo $TWINE_USERNAME
+        - poetry publish -u $PROD_USERNAME -p $PROD_PASSWORD
+    artifacts:
+        untracked: true
+        paths:
+        - dist
 
 pages:
     image: alpine:latest
