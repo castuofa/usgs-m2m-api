@@ -1,8 +1,7 @@
 import os
 import tarfile
 from time import sleep
-from typing import List, Union
-from queue import Queue
+from typing import Callable, List, Union
 
 import requests
 from clint.textui import progress
@@ -60,6 +59,18 @@ class DownloadManager:
         self.post_process = post_process
 
         self.cleanup = cleanup
+
+    @property
+    def active(self):
+        """
+        Check if there are active requests or downloading responses
+        underway
+        """
+        return self._requested or self._downloading
+
+    @property
+    def failed(self):
+        return self._failed
 
     def add(self, scene: Union[SceneModel, str]) -> "DownloadManager":
 
@@ -131,8 +142,17 @@ class DownloadManager:
             # Otherwise it returns an object - fun fun
             self._labels += list(self._original_request.duplicateProducts.values())
 
-    def start(self):
+    def start(self, download_fn: Callable = None, cool_down: int = 10):
+        """Start the downloader and wait for the API queue to generate
+        the downloads
 
+        Parameters
+        ----------
+        download_fn : Callable, optional
+            Callback function that receives a `usgs.download.Download` instance, by default None
+        cool_down : int, optional
+            API cool down period for requesting updates on ready downloads, by default 10
+        """
         self.prepare()
 
         self.collect_downloads()
@@ -141,10 +161,10 @@ class DownloadManager:
 
             if self._downloading:
                 print("Doing downloads")
-                self.do_downloads()
+                self.run_downloader(download_fn = download_fn)
             else:
-                print("Waiting for preparation")
-                sleep(10)
+                print(f"Waiting for ready state for {list(self._requested.keys())}")
+                sleep(cool_down)
             self.collect_downloads()
 
         if self._failed:
@@ -182,15 +202,27 @@ class DownloadManager:
                     self._requested.pop(entity_id)
                     continue
 
-    def do_downloads(self):
+    def run_downloader(self, download_fn: Callable = None):
 
         download_ids = list(self._downloading.keys())[::]
+
+        queued_scenes = []
 
         for entity_id in download_ids:
             download = self._downloading.pop(entity_id)
 
             try:
-                self.save(download)
+                #TODO: HOT FIX: Reduce potential duplicate downloads
+                if download.displayId not in queued_scenes:
+
+                    if download_fn:
+                        print(f"Starting download: {download.displayId} | {download.url}")
+                        download_fn(download)
+                    else:
+                        self.save(download)
+
+                    queued_scenes.append(download.displayId)
+
             except Exception as exc:
                 self._failed[entity_id] = exc
             else:
