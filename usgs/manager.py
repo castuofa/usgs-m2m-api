@@ -157,10 +157,9 @@ class DownloadManager:
 
         self.collect_downloads()
 
-        while self._requested or self._downloading:
+        while self.active:
 
             if self._downloading:
-                print("Doing downloads")
                 self.run_downloader(download_fn = download_fn)
             else:
                 print(f"Waiting for ready state for {list(self._requested.keys())}")
@@ -206,22 +205,15 @@ class DownloadManager:
 
         download_ids = list(self._downloading.keys())[::]
 
-        queued_scenes = []
-
         for entity_id in download_ids:
             download = self._downloading.pop(entity_id)
 
             try:
-                #TODO: HOT FIX: Reduce potential duplicate downloads
-                if download.displayId not in queued_scenes:
 
-                    if download_fn:
-                        print(f"Starting download: {download.displayId} | {download.url}")
-                        download_fn(download)
-                    else:
-                        self.save(download)
-
-                    queued_scenes.append(download.displayId)
+                if download_fn:
+                    download_fn(download)
+                else:
+                    self.save(download)
 
             except Exception as exc:
                 self._failed[entity_id] = exc
