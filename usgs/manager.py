@@ -42,6 +42,8 @@ class DownloadManager:
 
     _labels: List[str] = []
 
+    requested_scenes: List[str] = []
+
 
     def __init__(self, api: Api, dataset: Union[DatasetModel, str], path: str = "/", post_process: bool = False, cleanup: bool = False):
 
@@ -77,6 +79,8 @@ class DownloadManager:
         # Only need the entity id
         scene = scene.entityId if isinstance(scene, SceneModel) else scene
 
+        self.requested_scenes.append(scene)
+
         # Fetch the download capabilities
         options_result: List[DownloadOptionModel] = self.api.fetch(
             DownloadOptionQuery(datasetName=self.dataset.datasetAlias, entityIds=[scene])
@@ -97,6 +101,8 @@ class DownloadManager:
             else:
                 _id = scene
             scene_ids.append(_id)
+
+        self.requested_scenes += scene_ids
 
         # Fetch the download capabilities
         options_result: List[DownloadOptionModel] = self.api.fetch(
@@ -209,6 +215,8 @@ class DownloadManager:
             download = self._downloading.pop(entity_id)
 
             try:
+                if entity_id not in self.requested_scenes:
+                    continue
 
                 if download_fn:
                     download_fn(download)
