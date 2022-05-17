@@ -13,6 +13,12 @@ https://cast.git-pages.uark.edu/transmap-hub/usgs/usgs/
 
 ## Installation and Setup
 
+### Installing the python package
+
+```bash
+$ pip install usgs-m2m-api
+```
+
 ### Three methods for using your username and password
 1. Using a `.env` file
 ```
