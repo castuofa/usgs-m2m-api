@@ -1,5 +1,7 @@
 # USGS Python API
 
+> **_NOTE:_**  This is still in early stages and in no way should be used for production pipelines
+
 An object oriented wrapper around the USGS Earth Explorer JSON API (v1.5.x). The primary objective of this API is to provide a convenient method of requesting and downloading scenes from EE datasets, including robust metadata where available.
 
 ## API Documentation
